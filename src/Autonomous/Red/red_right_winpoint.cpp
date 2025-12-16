@@ -4,12 +4,15 @@ using namespace vex;
 using namespace mik;
 
 std::string red_right_winpoint(bool calibrate, mik::auto_variation var, bool get_name) { 
-    if (get_name) { return "red right winpoint"; }
+    if (get_name) { 
+        return "red right winpoint"; 
+    }
+
     if (calibrate) {
         chassis.set_coordinates(-51.6, -11, 135);
-        chassis.drive_distance(5);
+        chassis.drive_distance(5); // makes robot drives 5 inches 
         chassis.turn_to_point(-18.316,-25.585);
-        assembly.intake_motor_group.spin(reverse, 12, volt);
+        assembly.intake_motor_group.spin(reverse, 12, volt); // Starts spinning intake motor
         chassis.drive_to_point(-18.316,-25.585);
         wait(0.5, seconds);
         assembly.intake_motor_group.spin(reverse, 0, volt);
@@ -21,7 +24,6 @@ std::string red_right_winpoint(bool calibrate, mik::auto_variation var, bool get
 
         assembly.intake_motor_group.spin(reverse, 12, volt);
         assembly.ejection_motor.spin(forward,12,volt);
-    
         
         return "";
     }

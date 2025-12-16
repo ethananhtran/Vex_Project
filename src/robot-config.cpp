@@ -84,13 +84,13 @@ void calibrate_inertial(void) {
 	}
   
   	// Recalibrate inertial until it is within calibration threshold
-  	float starting_rotation = chassis.inertial.rotation();
-  	task::sleep(1000);
+		float starting_rotation = chassis.inertial.rotation();
+		task::sleep(1000);
 	if (force_calibrate_inertial && std::abs(chassis.inertial.rotation() - starting_rotation) > MINIMUN_INERTIAL_CALIBRATION_ERROR) { 
 		Controller.rumble("-");
 		calibrate_inertial();
-  	}
-  	calibrating = false;
+	}
+	calibrating = false;
 }
 
 static void loading_screen(bool stop) {
@@ -186,9 +186,9 @@ void disable_user_control(bool stop_all_motors_) {
 }
 
 void enable_user_control(void) {
-  	user_control_disabled = false;
+	user_control_disabled = false;
 }
 
 bool control_disabled(void) {
-  	return user_control_disabled;
+	return user_control_disabled;
 }
