@@ -40,5 +40,5 @@ void mogo_constants() {
 	}
 
 void mogo_offsets() {
-  	chassis.set_tracking_offsets(0, 1);
+	chassis.set_tracking_offsets(0, 1);
 }

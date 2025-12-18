@@ -19,33 +19,33 @@ bool force_calibrate_inertial = false;
 static const float MINIMUN_INERTIAL_CALIBRATION_ERROR = .05;
 
 Chassis chassis(
-    // Drivetrain motors
-    mik::motor_group({
-		mik::motor(PORT11, false, blue_6_1, "left_front_motor"), 
-		mik::motor(PORT12, true, blue_6_1, "left_middle_motor"), 
-		mik::motor(PORT13, true, blue_6_1, "left_back_motor")
-    }),
-    mik::motor_group({
-		mik::motor(PORT18, false, blue_6_1, "right_front_motor"), 
-		mik::motor(PORT19, false, blue_6_1, "right_middle_motor"), 
-		mik::motor(PORT20, true, blue_6_1, "right_back_motor")
-    }),
+	// Drivetrain motors
+	mik::motor_group({
+	mik::motor(PORT11, false, blue_6_1, "left_front_motor"), 
+	mik::motor(PORT12, true, blue_6_1, "left_middle_motor"), 
+	mik::motor(PORT13, true, blue_6_1, "left_back_motor")
+	}),
+	mik::motor_group({
+	mik::motor(PORT18, false, blue_6_1, "right_front_motor"), 
+	mik::motor(PORT19, false, blue_6_1, "right_middle_motor"), 
+	mik::motor(PORT20, true, blue_6_1, "right_back_motor")
+	}),
 
-    PORT21, // Inertia sensor port
-    358.25,    // Inertial scale, value that reads after turning robot a full 360
+	PORT21, // Inertia sensor port
+	358.25,    // Inertial scale, value that reads after turning robot a full 360
 
-    PORT14, // Forward Tracker Port
-    2.75,     // Forward Tracker wheel diameter in inches (negative flips direction)
-    0,      // Forward Tracker center distance in inches (a positive distance corresponds to a tracker on the right side of the robot, negative is left)
+	PORT14, // Forward Tracker Port
+	2.75,     // Forward Tracker wheel diameter in inches (negative flips direction)
+	0,      // Forward Tracker center distance in inches (a positive distance corresponds to a tracker on the right side of the robot, negative is left)
 
-    PORT17,  // Sideways tracker port
-    2.75,       // Sideways tracker wheel diameter in inches (negative flips direction)
-    0.25,     // Sideways tracker center distance in inches (positive distance is behind the center of the robot, negative is in front)
+	PORT17,  // Sideways tracker port
+	2.75,       // Sideways tracker wheel diameter in inches (negative flips direction)
+	0.25,     // Sideways tracker center distance in inches (positive distance is behind the center of the robot, negative is in front)
 
-    mik::distance_reset({
-		// A distance sensor that is mounted on the front of the robot and is offset by 5 inches to the right and 3.5 inches forward from the tracking center 
-		mik::distance(PORT17, rear_sensor, 5, 3.5)
-    })
+	mik::distance_reset({
+	// A distance sensor that is mounted on the front of the robot and is offset by 5 inches to the right and 3.5 inches forward from the tracking center 
+	mik::distance(PORT17, rear_sensor, 5, 3.5)
+	})
 );
 
 Assembly assembly(
@@ -62,16 +62,16 @@ Assembly assembly(
 
 /** Allows UI to display all motor values */
 void log_motors() {
-    config_add_motors({
+	config_add_motors({
 		// Add all mik motor groups in here
 		chassis.left_drive, 
 		chassis.right_drive, 
 		assembly.intake_motor_group
-    }, 
+	}, 
 	{
 		// Add all mik motors in here
 		assembly.ejection_motor
-    }
+	}
   );
 }
 
@@ -83,9 +83,9 @@ void calibrate_inertial(void) {
 		vex::task::sleep(25);
 	}
   
-  	// Recalibrate inertial until it is within calibration threshold
-		float starting_rotation = chassis.inertial.rotation();
-		task::sleep(1000);
+	// Recalibrate inertial until it is within calibration threshold
+	float starting_rotation = chassis.inertial.rotation();
+	task::sleep(1000);
 	if (force_calibrate_inertial && std::abs(chassis.inertial.rotation() - starting_rotation) > MINIMUN_INERTIAL_CALIBRATION_ERROR) { 
 		Controller.rumble("-");
 		calibrate_inertial();

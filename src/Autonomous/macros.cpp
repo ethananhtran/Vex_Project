@@ -20,7 +20,7 @@ void intake_ring_halfway() {
 
         }
         return 0;
-  });
+    });
 }
 
 void intake_forward() {

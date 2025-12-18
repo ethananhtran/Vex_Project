@@ -4,7 +4,7 @@ using namespace vex;
 using namespace mik;
 
 void relative_mode_constants() {
-  	default_constants();
+	default_constants();
 }
 
 void odom_mode_constants() {
@@ -98,7 +98,7 @@ void test_boomerang() {
 	chassis.drive_to_pose(24, 0, 0, {.lead = .2});
 	chassis.drive_to_pose(0, 24, 315);
 	chassis.drive_to_pose(0, 0, 0);
-	}
+}
 
 std::vector<point> path = {
 	{  0.000,   0.000 },
@@ -161,7 +161,7 @@ bool config_swap_test_mode() {
 }
 
 bool config_is_testing_odom() {
-  return testing_odom;
+	return testing_odom;
 }
 
 void config_tune_drive() {
@@ -276,9 +276,9 @@ void config_tune_turn() {
 		{"turn_tmout: ", chassis.turn_timeout}
 	};
 
-  int y_min = -10;
-  int y_max = 370;
-  int time_spent_graphing_ms = 10000; 
+	int y_min = -10;
+	int y_max = 370;
+	int time_spent_graphing_ms = 10000; 
 
 	graph_scr->set_plot_bounds(y_min, y_max, 0, time_spent_graphing_ms, 1, 1);
 	graph_scr->set_plot({
@@ -290,15 +290,15 @@ void config_tune_turn() {
 	UI_select_scr(graph_scr->get_graph_screen()); 
 
 	test_movements_func = [](){
-		chassis.set_coordinates(0, 0, 0);
-		graph_scr->reset_graph();
-		graph_scr->graph();
+	chassis.set_coordinates(0, 0, 0);
+	graph_scr->reset_graph();
+	graph_scr->graph();
 
-		if (testing_odom) {
-			test_odom_turn();
-		} else {
-			test_turn();
-		}
+	if (testing_odom) {
+		test_odom_turn();
+	} else {
+		test_turn();
+	}
 	};
 
 	PID_tuner();
@@ -346,19 +346,19 @@ void config_tune_swing() {
 }
 
 static int get_flicker_index(const std::string& value_str, float place) {
-  int dot_pos = value_str.find('.');
-  if (dot_pos == (int)std::string::npos) {
+	int dot_pos = value_str.find('.');
+	if (dot_pos == (int)std::string::npos) {
 		int idx = value_str.size() - 1 - place; 
 		return idx;
-  } else {
-	int idx;
-	if (place > 0) {
-		idx = dot_pos + place; 
 	} else {
-		idx = dot_pos - 1 + place;
+		int idx;
+		if (place > 0) {
+			idx = dot_pos + place; 
+		} else {
+			idx = dot_pos - 1 + place;
+		}
+		return idx;
 	}
-	return idx;
-  }
 }
 
 static int get_power(float n) {
@@ -372,114 +372,115 @@ static int get_power(float n) {
 }
 
 void PID_tuner() {
-  auton_scr->disable_controller_overlay();
-  disable_user_control(true);
-  vex::task test;
+	auton_scr->disable_controller_overlay();
+	disable_user_control(true);
+	vex::task test;
 
-  user_control_task = vex::task([](){
-	while(1) {
-	  	chassis.control(chassis.selected_drive_mode);
-	  	vex::this_thread::sleep_for(5);
-	}
-	return 0;
-  });
+	user_control_task = vex::task([](){
+		while(1) {
+			chassis.control(chassis.selected_drive_mode);
+			vex::this_thread::sleep_for(5);
+		}
+		return 0;
+	});
 
-  pid_tuner_task = vex::task([](){
-	static int flicker = 0;
-	while(1) {
-	data.max = std::max(3, data.index+1);
-	data.min = data.max - 3;
+	pid_tuner_task = vex::task([](){
+		static int flicker = 0;
+		while(1) {
+			data.max = std::max(3, data.index+1);
+			data.min = data.max - 3;
 
-	int j = 0;
-	for(int i = data.min; i < data.max; ++i) {
-	  Controller.Screen.setCursor(j+1, 1);
-	  j++;
-	  std::string var = to_string_float(data.variables[i].second, 3, false);
+			int j = 0;
+			for(int i = data.min; i < data.max; ++i) {
+				Controller.Screen.setCursor(j+1, 1);
+				j++;
+				std::string var = to_string_float(data.variables[i].second, 3, false);
 
-	  if (data.index == i) {
-		flicker++;
-		if(flicker % 2 == 0) {
-		  int idx = get_flicker_index(var, -std::log10(1.0 / data.modifer_scale));
-		  if(idx >= 0 && idx < (int)var.size()) {
-			if(std::isdigit(var[idx])) {
-			  if(var[idx] == '1') {
-				var[idx] = '-';
-			  } else {
-				var[idx] = '_';
-			  }
+				if (data.index == i) {
+					flicker++;
+					if(flicker % 2 == 0) {
+						int idx = get_flicker_index(var, -std::log10(1.0 / data.modifer_scale));
+						if(idx >= 0 && idx < (int)var.size()) {
+							if(std::isdigit(var[idx])) {
+								if(var[idx] == '1') {
+									var[idx] = '-';
+								} else {
+									var[idx] = '_';
+								}
+							}
+						}
+					}
+					else{}
+				}
+
+				Controller.Screen.print((data.variables[i].first + var).c_str());
+			
+				if (data.index == i) { 
+					data.var_upper_size = get_power(data.variables[i].second);
+
+					if (data.needs_update) {
+						remove_duplicates_SD_file("pid_data.txt", data.variables[i].first);
+						data.variables[i].second += data.modifier;
+						write_to_SD_file("pid_data.txt", (data.variables[i].first + to_string(data.variables[i].second)));
+						data.needs_update = false;
+					}
+					Controller.Screen.print("<            "); 
+				} else { 
+					Controller.Screen.print("             "); 
+				}
 			}
-		  }
+
+			this_thread::sleep_for(20);
 		}
-		else{}
-	  }
+		return 0;
+	});
 
-	  Controller.Screen.print((data.variables[i].first + var).c_str());
-	  
-	  if (data.index == i) { 
-		data.var_upper_size = get_power(data.variables[i].second);
-
-		if (data.needs_update) {
-			remove_duplicates_SD_file("pid_data.txt", data.variables[i].first);
-			data.variables[i].second += data.modifier;
-			write_to_SD_file("pid_data.txt", (data.variables[i].first + to_string(data.variables[i].second)));
-			data.needs_update = false;
-		}
-		Controller.Screen.print("<            "); 
-	  } else { 
-		Controller.Screen.print("             "); 
-	  }
-	}
-
-	this_thread::sleep_for(20);
-	}
-	return 0;
-  });
-  update_controller_scr = vex::task([](){
-	while(1) {
-		if (btnUp_new_press(Controller.ButtonUp.pressing())) {
-			if (data.index > 0) { data.index--; }
+	update_controller_scr = vex::task([](){
+		while(1) {
+			if (btnUp_new_press(Controller.ButtonUp.pressing())) {
+				if (data.index > 0) { data.index--; }
 				data.modifer_scale = 1;
-		}
-		if (btnDown_new_press(Controller.ButtonDown.pressing())) {
-			if (data.index < data.variables.size() - 1) { data.index++; }
-			data.modifer_scale = 1;
-		}
-		if (btnRight_new_press(Controller.ButtonRight.pressing())) {
-			data.modifier = 1 / data.modifer_scale;
-			data.needs_update = true;
-		}
-		if (btnLeft_new_press(Controller.ButtonLeft.pressing())) {
-			data.modifier = -1 / data.modifer_scale;
-			data.needs_update = true;
-		}
-		if (btnY_new_press(Controller.ButtonY.pressing())) {
-			data.modifer_scale /= 10;
-			if (data.modifer_scale < (1 / data.var_upper_size)) {
-				data.modifer_scale = (1 / data.var_upper_size);
 			}
-		}
-		if (btnA_new_press(Controller.ButtonA.pressing())) {
-			data.modifer_scale *= 10;
-			if (data.modifer_scale > 1000) {
-				data.modifer_scale = 1000;
+			if (btnDown_new_press(Controller.ButtonDown.pressing())) {
+				if (data.index < data.variables.size() - 1) { data.index++; }
+				data.modifer_scale = 1;
 			}
+			if (btnRight_new_press(Controller.ButtonRight.pressing())) {
+				data.modifier = 1 / data.modifer_scale;
+				data.needs_update = true;
+			}
+			if (btnLeft_new_press(Controller.ButtonLeft.pressing())) {
+				data.modifier = -1 / data.modifer_scale;
+				data.needs_update = true;
+			}
+			if (btnY_new_press(Controller.ButtonY.pressing())) {
+				data.modifer_scale /= 10;
+				if (data.modifer_scale < (1 / data.var_upper_size)) {
+					data.modifer_scale = (1 / data.var_upper_size);
+				}
+			}
+			if (btnA_new_press(Controller.ButtonA.pressing())) {
+				data.modifer_scale *= 10;
+				if (data.modifer_scale > 1000) {
+					data.modifer_scale = 1000;
+				}
+			}
+			if (btnX_new_press(Controller.ButtonX.pressing())) {
+				user_control_task.suspend();
+				test_movements_task = vex::task([](){
+					test_movements_func();
+					return 0;
+				});
+			}
+			if (btnB_new_press(Controller.ButtonB.pressing())) {
+				user_control_task.resume();
+				test_movements_task.stop();
+				chassis.stop_drive(vex::coast);
+			}
+			task::sleep(20);
 		}
-		if (btnX_new_press(Controller.ButtonX.pressing())) {
-			user_control_task.suspend();
-			test_movements_task = vex::task([](){
-				test_movements_func();
-				return 0;
-			});
-		}
-		if (btnB_new_press(Controller.ButtonB.pressing())) {
-			user_control_task.resume();
-			test_movements_task.stop();
-			chassis.stop_drive(vex::coast);
-		}
-		task::sleep(20);
-	}
-	return 0;
-  });
+		return 0;
+	});
 }
 
 static std::vector<mik::motor> motors_;
@@ -579,8 +580,8 @@ void config_spin_all_motors() {
 			vex::task::sleep(1000);
 		}
 		enable_user_control();
-	return 0;
-  });
+		return 0;
+	});
 }
 
 void config_motor_wattage() {
@@ -602,8 +603,8 @@ void config_motor_wattage() {
 void config_motor_temp() {
 	console_scr->reset();
 	UI_select_scr(console_scr->get_console_screen()); 
-  
-  	vex::task temp([](){
+
+	vex::task temp([](){
 		task::sleep(500);
 		
 		console_scr->add("right_drive: ", []() { return to_string_float(chassis.right_drive.averageTemperature(), 0, true) + "%% overheated    "; });
@@ -612,7 +613,7 @@ void config_motor_temp() {
 			console_scr->add(motor.name() + ": ", [&motor]() { return to_string_float(motor.temperature(), 0, true) + "%% overheated    "; });
 		}
 		return 0;
-  });
+	});
 
 }
 
@@ -728,24 +729,23 @@ void config_skills_driver_run() {
 			elapsed_time = current_time - start_time;
 			time_remaining = max_time - elapsed_time;
 
-			switch (time_remaining)
-			{
-			case 30:
-				Controller.rumble((".-"));
-			case 15:
-				Controller.rumble(("."));
-				break;
-			case 5:
-				Controller.rumble((".-"));
-				break;
-			case 0:
-				Controller.rumble(("."));
-				chassis.stop_drive(vex::coast);
-				disable_user_control(true);
-				std::abort();
-				break;
-			default:
-				break;
+			switch (time_remaining) {
+				case 30:
+					Controller.rumble((".-"));
+				case 15:
+					Controller.rumble(("."));
+					break;
+				case 5:
+					Controller.rumble((".-"));
+					break;
+				case 0:
+					Controller.rumble(("."));
+					chassis.stop_drive(vex::coast);
+					disable_user_control(true);
+					std::abort();
+					break;
+				default:
+					break;
 			}
 			
 			Controller.Screen.setCursor(1, 1);
