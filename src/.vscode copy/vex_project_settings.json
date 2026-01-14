@@ -1,0 +1,18 @@
+{
+	"project": {
+		"name": "william_tayvon",
+		"slot": 2,
+		"description": "mikLib-v1.2.3                 Press X to hide auton selector",
+		"platform": "V5",
+		"creationDate": "Mon, 10 Nov 2025 17:12:06 GMT",
+		"language": "cpp",
+		"sdkVersion": "V5_20240802_15_00_00",
+		"cpp": {
+			"includePath": []
+		}
+	},
+	"extension": {
+		"version": "0.7.2025041600",
+		"json": 1
+	}
+}
